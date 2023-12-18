@@ -1,28 +1,28 @@
 #!/usr/bin/python3
-""" This module uses Python to make requests to a REST API.
-It fetches data about a specific employee's tasks
-and prints a summary of the tasks completed and
-the titles of the completed tasks.
-"""
-
-
+"""Gather data from an API"""
 import requests
 import sys
 
 
-employee_id = sys.argv[1]
-user_response = requests.get(
-    f'https://jsonplaceholder.typicode.com/users/{employee_id}')
-data = user_response.json()
-employee_name = data['name']
-todos_response = requests.get(
-    f'https://jsonplaceholder.typicode.com/todos?userId={employee_id}')
-todos_data = todos_response.json()
-total_todos = len(todos_data)
-ok_todos = sum(1 for task in todos_data if task['completed'])
+def print_todo_progress(employee_id):
+    user_response = requests.get(
+        f'https://jsonplaceholder.typicode.com/users/{employee_id}')
+    employee_name = user_response.json()['name']
 
-print(
-    f'Employee {employee_name} is done with tasks({ok_todos}/{total_todos}):')
-for task in todos_data:
-    if task['completed']:
-        print('\t ' + task['title'])
+    todo_response = requests.get(
+        f'https://jsonplaceholder.typicode.com/users/{employee_id}/todos')
+    tasks = todo_response.json()
+
+    total_tasks = len(tasks)
+    done_tasks = sum(1 for task in tasks if task['completed'])
+
+    print(
+        f'Employee {employee_name} is done with tasks({done_tasks}/{total_tasks}):')
+    for task in tasks:
+        if task['completed']:
+            print('\t ' + task['title'])
+
+
+if __name__ == "__main__":
+    employee_id = int(sys.argv[1])
+    print_todo_progress(employee_id)
