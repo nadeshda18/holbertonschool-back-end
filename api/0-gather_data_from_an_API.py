@@ -1,8 +1,9 @@
 #!/usr/bin/python3
-"""Gather data from an API"""
+"""Write a script that returns information, for a given employee ID, about
+his/her TODO list
+"""
 import requests
 import sys
-
 
 employee_id = sys.argv[1]
 user_response = requests.get(
