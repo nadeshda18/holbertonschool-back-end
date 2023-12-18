@@ -4,22 +4,24 @@ import requests
 import sys
 
 
-def print_todo_progress(employee_id):
-    response = requests.get(
-        f'https://jsonplaceholder.typicode.com/users/{employee_id}/todos')
-    tasks = response.json()
+employee_id = sys.argv[1]
+user_response = requests.get(
+    f'https://jsonplaceholder.typicode.com/users/{employee_id}')
 
-    total_tasks = len(tasks)
-    done_tasks = sum(1 for task in tasks if task['completed'])
-    employee_name = tasks[0]['userId']
+data = user_response.json()
+employee_name = data['name']
 
-    print(
-        f'Employee {employee_name} is done with tasks({done_tasks}/{total_tasks}):')
-    for task in tasks:
-        if task['completed']:
-            print('\t ' + task['title'])
+todos_response = requests.get(
+    f'https://jsonplaceholder.typicode.com/todos?userId={employee_id}')
+todos_data = todos_response.json()
 
 
-if __name__ == "__main__":
-    employee_id = int(sys.argv[1])
-    print_todo_progress(employee_id)
+total_todos = len(todos_data)
+ok_todos = sum(1 for task in todos_data if task['completed'])
+
+print(
+    f'Employee {employee_name} is done with tasks({ok_todos}/{total_todos}):')
+
+for task in todos_data:
+    if task['completed']:
+        print('\t ' + task['title'])
