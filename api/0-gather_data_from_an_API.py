@@ -1,28 +1,25 @@
 #!/usr/bin/python3
-"""Write a script that returns information, for a given employee ID, about
-his/her TODO list
-"""
+"""Gather data from an API"""
 import requests
 import sys
 
-employee_id = sys.argv[1]
-user_response = requests.get(
-    f'https://jsonplaceholder.typicode.com/users/{employee_id}')
 
-data = user_response.json()
-employee_name = data['name']
+def print_todo_progress(employee_id):
+    response = requests.get(
+        f'https://jsonplaceholder.typicode.com/users/{employee_id}/todos')
+    tasks = response.json()
 
-todos_response = requests.get(
-    f'https://jsonplaceholder.typicode.com/todos?userId={employee_id}')
-todos_data = todos_response.json()
+    total_tasks = len(tasks)
+    done_tasks = sum(1 for task in tasks if task['completed'])
+    employee_name = tasks[0]['userId']
+
+    print(
+        f'Employee {employee_name} is done with tasks({done_tasks}/{total_tasks}):')
+    for task in tasks:
+        if task['completed']:
+            print('\t ' + task['title'])
 
 
-total_todos = len(todos_data)
-ok_todos = sum(1 for task in todos_data if task['completed'])
-
-print(
-    f'Employee {employee_name} is done with tasks({ok_todos}/{total_todos}):')
-
-for task in todos_data:
-    if task['completed']:
-        print('\t ' + task['title'])
+if __name__ == "__main__":
+    employee_id = int(sys.argv[1])
+    print_todo_progress(employee_id)
