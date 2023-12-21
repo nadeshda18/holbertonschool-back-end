@@ -1,37 +1,24 @@
 #!/usr/bin/python3
-"""
-This script uses the JSONPlaceholder API to fetch data
-about a specific employee
-and exports a summary of the tasks to a JSON file.
-"""
-
-import json
-import requests
-import sys
-
-
-def export_to_json(employee_id):
-    user_response = requests.get(
-        f'https://jsonplaceholder.typicode.com/users/{employee_id}')
-    data = user_response.json()
-    employee_name = data['name']
-
-    todos_response = requests.get(
-        f'https://jsonplaceholder.typicode.com/todos?userId={employee_id}')
-    todos_data = todos_response.json()
-
-    tasks = []
-    for task in todos_data:
-        tasks.append({
-            "task": task['title'],
-            "completed": task['completed'],
-            "username": employee_name
-        })
-
-    with open(f'{employee_id}.json', 'w') as jsonfile:
-        json.dump({employee_id: tasks}, jsonfile)
+"""Script to export data i  the JSON format"""
 
 
 if __name__ == "__main__":
-    employee_id = sys.argv[1]
-    export_to_json(employee_id)
+    import json
+    import requests
+    from sys import argv
+
+    u_id = argv[1]
+    api_url = "https://jsonplaceholder.typicode.com/users/{}".format(u_id)
+    api_url2 = "https://jsonplaceholder.typicode.com/todos?userId={}"\
+        .format(u_id)
+    response = requests.get(api_url).json()
+    EMPLOYEE_NAME = response.get('username')
+    response = requests.get(api_url2).json()
+    f_name = u_id + '.json'
+    u_list = {u_id: []}
+    for info in response:
+        dic = {"task": info.get('title'), "completed": info.get('completed'),
+               "username": EMPLOYEE_NAME}
+        u_list.get(u_id).append(dic)
+    with open(f_name, 'w', encoding='utf-8') as f:
+        json.dump(u_list, f)

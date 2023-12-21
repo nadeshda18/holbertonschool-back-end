@@ -1,39 +1,41 @@
 #!/usr/bin/python3
 """
-This script uses the JSONPlaceholder API to fetch data about all employees
-and exports a summary of their tasks to a JSON file.
+This module uses Python to make requests to a REST API.
+q
+It fetches data about a specific employee's tasks
+and prints a summary of the tasks completed and the
+titles of the completed tasks.
 """
-
 import json
 import requests
 
 
-def export_all_to_json():
-    user_response = requests.get('https://jsonplaceholder.typicode.com/users')
-    users_data = user_response.json()
+# Reuet data for users
+users = requests.get('https://jsonplaceholder.typicode.com/users').json()
 
-    all_tasks = {}
-    for user in users_data:
-        employee_id = user['id']
-        employee_name = user['name']
+# Make an empty dictionary
+all_tasks = {}
 
-        todos_response = requests.get(
-            f'https://jsonplaceholder.typicode.com/todos?userId={employee_id}')
-        todos_data = todos_response.json()
+# Loop over all users
+for user in users:
+    # get the user id and name
+    user_id = user['id']
+    user_name = user['username']
 
-        tasks = []
-        for task in todos_data:
-            tasks.append({
-                "username": employee_name,
-                "task": task['title'],
-                "completed": task['completed']
-            })
+    # Get the list
+    todo_list = requests.get(
+        f'https://jsonplaceholder.typicode.com/todos?userId={user_id}').json()
 
-        all_tasks[employee_id] = tasks
+    # Format the task as indicated
+    task_list = [{'username': user_name, 'task': task.get(
+        'title'), 'completed': task.get('completed')} for task in todo_list]
 
-    with open('todo_all_employees.json', 'w') as jsonfile:
-        json.dump(all_tasks, jsonfile)
+    # Adds the task to the dictionary
+    all_tasks[user_id] = task_list
 
+# Export using Json format
+with open('todo_all_employees.json', 'w') as jsonfile:
+    json.dump(all_tasks, jsonfile)
 
-if __name__ == "__main__":
-    export_all_to_json()
+if __name__ == '__main__':
+    pass
