@@ -1,53 +1,35 @@
 #!/usr/bin/python3
-"""Script to return info about todo list progress"""
+"""
+This script uses the JSONPlaceholder API to fetch
+data about a specific employee
+and prints a summary of their TODO list progress.
+"""
+
 import requests
-from requests import get
-from sys import argv
+import sys
 
 
-def information_employee():
-    """Returns information about employees"""
-    id_employee = int(argv[1])
-    id_employee = int(argv[1])
-    employee_name = ""
-    number_of_done_task = 0
-    total_number_of_task = 0
-    task_title = []
-
-    url_users = 'https://jsonplaceholder.typicode.com/users'
-
-    # Get user data
-    user_url = f"https://jsonplaceholder.typicode.com/users/{id_employee}"
+def print_todo_progress(employee_id):
+    user_url = ('https://jsonplaceholder.typicode.com/users/{}'
+                .format(employee_id))
     user_response = requests.get(user_url)
-    user_data = user_response.json()
-    employee_name = user_data['name']
+    employee_name = user_response.json()['name']
 
-    url_todos = 'https://jsonplaceholder.typicode.com/todos'
+    todos_url = ('https://jsonplaceholder.typicode.com/todos?userId={}'
+                 .format(employee_id))
+    todos_response = requests.get(todos_url)
+    todos_data = todos_response.json()
 
-    response_one = get(url_users)
-    response_two = get(url_todos)
+    total_tasks = len(todos_data)
+    done_tasks = sum(1 for task in todos_data if task['completed'])
 
-    if response_one.status_code == 200:
-        response_json_usr = response_one.json()
-        response_json_tod = response_two.json()
-
-        for user in response_json_usr:
-            if (user['id'] == id_employee):
-                employee_name = user['name']
-
-                for tod in response_json_tod:
-                    if tod['userId'] == id_employee:
-                        total_number_of_task += 1
-                        if tod['completed'] is True:
-                            number_of_done_task += 1
-                            task_title.append(tod['title'])
-
-        print('Employee {} is done with tasks({}/{}):'
-              .format(employee_name, number_of_done_task,
-                      total_number_of_task))
-        for title in task_title:
-            print('\t {}'.format(title))
+    print('Employee {} is done with tasks({}/{}):'
+          .format(employee_name, done_tasks, total_tasks))
+    for task in todos_data:
+        if task['completed']:
+            print('\t {}'.format(task['title']))
 
 
 if __name__ == "__main__":
-    information_employee()
+    employee_id = sys.argv[1]
+    print_todo_progress(employee_id)
